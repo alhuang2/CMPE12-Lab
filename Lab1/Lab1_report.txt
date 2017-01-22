@@ -1,0 +1,13 @@
+Alston Huang
+alyehuan@ucsc.edu
+1471706
+Lab 1
+Section 01D
+
+Q:Think about how you would make the digit display if you didn’t have one.  Write out how you would approach doing so.
+
+A:Have a bunch of LEDs arranged like the digit display and create a circuit network that can lightup certain LEDS to mimic a digit.
+
+Q:Make some sort of guess on how that random number generator works? How can things be really random in a computer with logic gates being so, well, logical?
+
+A:Perhaps it's like rolling a dice. It is rolling between 1 and 0 at certain speeds but different speed everytime it is rolled and is stopped at a certain time. 
