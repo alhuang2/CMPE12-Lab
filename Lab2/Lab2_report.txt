@@ -1,0 +1,36 @@
+UCSC
+CMPE 12L-01D TA: Max Lichtenstein
+Lab 2: Adding and Subtracting
+Alston Huang
+alyehuan@ucsc.edu
+Due Date:1/29/17
+
+Q: Discuss issues you had building the circuit.  Describe what you added to the minimum specifications to make debugging easier.
+
+A: I had conceptual issues. I didn't what the connection was between the register and the adder. To debug, I added LED's to trace the system as I was running it. 
+
+Q: What happens when you subtract a larger number from a smaller number?  Does the result make sense?  Your 7 segment display might not.  What happens when you add two numbers that won’t fit in 6 bits?  You will need to add several times to do this as you only have 4-bit input. 
+
+A: The result doesn't make sense in the 7-segment LED because it is in negative hexadecimal form. The LED's corresponding to the register will give the correct negative number in binary. As for adding a number that won't fit 6 bits, the 7-seg LED will show only the first 6 bits. For example, adding F 5 times gives 75 which is greater than 6 bits. It will only show 0b which is the first 6 bits.
+
+Purpose:
+Use combinational logic to add and subtract as well as understanding memory.
+
+Procedure:
+
+Part 1: 
+Copied the given flip flop 6 times to build a 6 bit register. Sync'd the Clocks and Clears together. The first issue was what I should put as the input and output of the register. After realizing the registers initially hold 0's, I realized the first addition is adding 0 to the keypad number. Then I realized I could store the first addition into the register by setting the adder's sum as input to the register and the output of it as one of the adder's input. 
+
+Part 2:
+Using the starter page, I took the keypad and connected an LED to each 4 output of the keypad and figured out the bit's digit position. Connected a sender for each digit.
+
+Part 3:
+Pulled the truth table for a full adder. Realized the Sum is a 3 input put xor gate with the first 2 inputs from the keypad and third input as carry in. To calculate the carry out, I created a truth table and constructed the gates using SoP. The first carry in is 0 and the first carry out goes as the next digit's carry in. Don't need the 6th carry out. Later on, after completing the inverter or not in part 4, I removed the keyboard input in the adder and replaced it with the output from part 4. Also changed the first carry in to be the subtracting signal.
+
+Part 4:
+Part 4 was simple to invert the number based on the subtraction signal. This reminded me of a mux. I tried using the mux operator but didn't understand the conditions/inputs of it so I built it using AND and OR gates. When subtraction signal is on, choose the NOT version of the input. 
+
+
+
+
+
