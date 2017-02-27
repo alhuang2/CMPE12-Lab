@@ -1,0 +1,19 @@
+UCSC
+CMPE 12L-01D TA: Max Lichtenstein
+Lab 3: Decimal to Binary converter
+Alston Huang
+alyehuan@ucsc.edu
+Due Date:2/19/17
+
+Purpose: 
+The purpose of this lab is to create a decimal to binary converter using Lc-3 and to get familiar with the language.
+
+Procedure:
+I followed the given flowchart box by box and their corresponding direction. Creating the greeting message, variables/register, and checking enter key and "-" symbol were simple tasks that didn't take too much time. 
+
+The first issue I had was figuring out why we had to do char-48. After reading a few piazza posts I realized the user input is the ascii value and doing -48 will give us the decimal representation that we want. The second issue was keeping the int in the int=int x 10 + digit. I let R6 hold the integer that we want to multiply by 10 by. While I did the multiplying and adding the digit at the end correct, my sum was not correct. I later realized that R5, my register holding the sum, was being resetted everytime I went back to GETC. That was why all the digits prior to the last one never showed up.
+
+The last issue I had was in my masking loop algorithm. At first I only had one counter. I tried using that counter as my pointer as well and found myself stuck on how to end the loop. After asking a TA, I created a register, R3, that kept incrementing every loop and then have a second register, R6, hold R3-16. If R6 was still negative, keep looping the maskloop operation and the R3 pointer is still accurate.
+
+Conclusion:
+This was a very difficult assignment for me as it is the first program in this new environment/language. However, with the flowchart and TA help, the lab became much more doable. 

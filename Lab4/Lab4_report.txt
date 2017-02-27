@@ -1,0 +1,60 @@
+UCSC
+CMPE 12L-01D TA: Max Lichtenstein
+Lab 4: Caesar Cipher program
+Alston Huang
+alyehuan@ucsc.edu
+Due Date:2/26/17
+
+Purpose:
+The purpose of this lab is to learn subroutines and abstract implementation
+of 2 dimensional arrays
+
+Procedure:
+I started off with the prompts and variable creations. Next I moved onto the Store 
+function/subroutine. I selected to follow Row Major and for the first few hours
+I was confused as to how I was supposed to implement a Row and Column into
+a technically speaking one dimensional array. Figured out that first half of
+the array address is Row 0 with columns 1-200 and then second half of the array
+address was Row 1 with columns 1-200. With that, I knew how to create a store function.
+
+Load was next, and load was nearly identical with store except with one less input
+and just stores the grabbed item into a variable (RETCHAR) 
+
+Encrypt function was next. Heres my quick pseudocode of how i bound checked
+	if x < 65
+		disregard
+	if x <= 90
+		encrypt upper letter
+	if x <= 97
+		disregard because x is 90 < x  97
+	if x <= 122
+		encrypt smaller leter
+	if x > 122
+		disregard
+As for the encryption algorithm, 
+	if (char + cipher)  > Z or z, 
+		do char + cipher - 26
+		//this would loop back the character
+	else 
+		store char + cipher
+
+Decrypt function was next. Same bound check. Used encryption algo except
+	if (char - cipher) < A or a
+		do char - cipher + 26
+	else
+		store char - cipher
+
+Print function was last function i needed. I used my encryption flag as a way
+of determining which Row to print first. 
+	if encryption flag was 1 
+		print row 1 first
+		then print row 0
+	if encryption flag was 0
+		print row 0 first
+		then print row 1
+
+Conlclusion:
+It was a tough lab that took way too long. A lot of misunderstanding of the prompt and 
+implementation of the method. I had finished the lab without doing these subroutines
+and Row/Column implementation but soon found out that the lab required these subroutines thus taking a lot longer to do and a lot more frustration. It was not so much of a test of
+subroutines, but instead it was a test of abstract thinking..

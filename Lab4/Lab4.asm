@@ -1,0 +1,487 @@
+;UCSC
+;CMPE 12L-01D TA: Max Lichtenstein
+;Lab 4: Caesar Cipher program
+;Alston Huang
+;alyehuan@ucsc.edu
+;Due Date:2/26/17
+
+.ORIG x3000
+
+AND R0, R0, 0
+AND R1, R1, 0
+AND R2, R2, 0
+AND R3, R3, 0
+AND R4, R4, 0
+AND R5, R5, 0
+AND R6, R6, 0
+AND R7, R7, 0
+
+WELCOME .STRINGZ "Hello, welcome to my Caesar Cipher program"
+
+LEA R0, WELCOME
+PUTS
+ASK .STRINGZ "\nDo you want to (E)ncrypt or (D)ecrypt or e(X)it?\n"
+
+MAINLOOP
+JSR RESETARRAY		;resets array
+AND R0, R0, 0
+AND R1, R1, 0
+AND R2, R2, 0
+AND R3, R3, 0
+AND R4, R4, 0
+AND R5, R5, 0
+AND R6, R6, 0
+AND R7, R7, 0
+
+LEA R0, ASK
+PUTS
+
+GRAB GETC
+OUT
+
+;checks if user pressed E X or D
+
+CHECK4EDX AND R2, R2, 0
+LD R2, E
+ADD R2, R0, R2
+BRz CHANGEENCRYPTFLAG
+LD R2, D
+ADD R2, R0, R2
+BRz ASKCIPHER
+LD R2, X
+ADD R2, R0, R2
+BRz ENDPROGRAM
+BRnzp GRAB
+
+;changes encrypting flag
+
+CHANGEENCRYPTFLAG AND R2, R2, 0
+ADD R2, R2, 1
+ST R2, EFLAG
+AND R2, R2, 0
+BRnzp ASKCIPHER
+
+;prompt for the cipher number
+
+ASKCIPHER LEA R0, CIPHERNUM
+PUTS
+
+GRAB2 GETC
+OUT
+
+;CHECKS FOR LF
+ADD R2, R0, -10
+BRz ASKSTRING
+
+TODIGIT AND R3, R3, 0
+AND R4, R4, 0
+ADD R3, R3, R0 			;STROE USER INPUT TO R3				
+ADD R3, R3, -16			;
+ADD R3, R3, -16			;
+ADD R3, R3, -16 		;R3 IS NOW THE ACTUAL DECIMAL VALUE
+ADD R4, R4, -9 			;SET COUNTER TO 9
+AND R6, R6, 0 			;RESET TEMP
+ADD R6, R6, R5 			;
+MULTIPLY ADD R5, R6, R5 	;KEEP ADDING BY ITSELF UNTIL COUNTER=0
+ADD R4, R4, 1			;
+BRn MULTIPLY			;
+ADD R5, R5, R3 			;+DIGIT PART
+ST R5, CNUMBER			;STORE R5 INTO CNUMBER(CIPHER NUMBER)
+BRnzp GRAB2
+
+JOKE .STRINGZ "What is the string (up to 200 characters)?\n"
+ASKSTRING LEA R0, JOKE
+PUTS 
+
+AND R4, R4, 0
+ST R4, RI			;SET ROW = 0
+STORINGLOOP GETC 		;GRAB CHAR
+OUT
+LD R4, NUMOFCHARS		;R4 = NUMBER OF CHARACTERS
+
+;CHECK FOR LF
+AND R5, R5, 0
+ADD R5, R0, -10
+BRz CHECK4FLAGS
+
+ST R4, CI			;store num of chars to column
+ST R0, CHAR			;store char into CHAR
+JSR STORE			;store into Row 0, Column (num of chars)
+LD R4, NUMOFCHARS		
+ADD R4, R4, 1			;numofchars++
+ST R4, NUMOFCHARS		;store new numofchars into numofchars
+AND R0, R0, 0	
+BRnzp STORINGLOOP		;repeat until linefeed is entered
+
+CHECK4FLAGS 			
+LEA R0, REPLY
+PUTS
+LEA R1, EFLAG			;if encrypt flag = 1 go encrypt else decrypt
+LDR R1, R1, 0
+BRz GODECRYPT
+BRnzp GOENCRYPT
+
+GOENCRYPT
+JSR ENCRYPT
+ADD R0, R0, 0
+BRnzp GOPRINT
+GOPRINT 
+JSR PRINT
+ADD R0, R0, 0
+BRnzp MAINLOOP
+
+GODECRYPT
+JSR DECRYPT
+ADD R0, R0, 0
+BRnzp GOPRINT1
+GOPRINT1
+JSR PRINT
+ADD R0, R0, 0
+BRnzp MAINLOOP
+
+
+ENDPROGRAM
+LEA R0, GOODBYE
+PUTS 
+HALT
+
+CIPHERNUM .STRINGZ "\nWhat is the cipher (1-25)?\n"
+REPLY .STRINGZ "\nHere is your string and the decrypted result\n"
+GOODBYE .STRINGZ "\nGoodbye!!\n"
+
+E .FILL -69
+D .FILL -68
+X .FILL -88
+P200 .FILL 200
+BIGA .FILL -65
+BIGZ .FILL -90
+SMALLA .FILL -97
+SMALLZ .FILL -122
+TWSIX .FILL -26
+FOURHUN .FILL -400
+
+CNUMBER .BLKW 1
+EFLAG .BLKW 1
+DFLAG .BLKW 1
+SAVE .BLKW 1
+CHAR .BLKW 1
+CI .BLKW 1
+RI .BLKW 1
+
+;goes to Row x Column y and stores CHAR into array
+STORE
+AND R2, R2, 0		;R2 WILL BE ROW
+AND R3, R3, 0		;R3 WILL BE COLUMN
+AND R4, R4, 0		;R4 WILL HOLD OFFSET
+AND R5, R5, 0		;R5 WILL HOLD ARRAY ADDRESS
+
+LD R3, CI		
+LD R2, RI
+BRp DOADD
+BRnz SKIPADD
+DOADD LD R4, P200		;IF ROW = 1, THEN WE'RE STORING AT 2ND DIMENSION I.E. INCREMENT BY 200
+SKIPADD ADD R3, R3, R4		
+LEA R5, ARRAY
+ADD R5, R5, R3		;ARRAY + (0 IF ROW =0, 200 IF ROW = 1)
+LD R4, CHAR		;SET R4 = CHAR WE'RE STORING
+STR R4, R5, 0		;STORE THE CHAR INTO ARRAY
+AND R4, R4, 0
+RET
+
+;grabs item from Row x and column y and store into RETCHAR
+LOAD		
+AND R2, R2, 0
+AND R3, R3, 0
+AND R4, R4, 0
+AND R5, R5, 0
+
+LD R3, CI
+LD R2, RI
+BRp DOADD1
+BRnzp SKIPADD1
+DOADD1
+	 LD R4, P200
+SKIPADD1 
+	ADD R3, R3, R4
+LEA R5, ARRAY
+ADD R5, R5, R3
+LDR R5, R5, 0
+ST R5, RETCHAR
+RET
+
+;clear array memory
+RESETARRAY
+LEA R1, ARRAY
+LD R2, FOURHUN		;r2 = -400	
+AND R3, R3, 0
+RESETLOOP		
+	STR R3, R1, 0
+	ADD R1, R1, 1
+	ADD R2, R2, 1	;until r2 = 0, keep incrementing address and store 0
+	BRn RESETLOOP
+RET		 
+
+;increment alphabets only by the ciphernumber amount
+ENCRYPT
+ST R7, SAVE		;SAVE = RETURN ADDRESS OF ENCRYPT
+AND R1, R1, 0		;ARRAY ADDRESS
+AND R2, R2, 0		;ALPA END HOLDERS
+AND R3, R3, 0		;ALPHA END HOLDER
+AND R4, R4, 0		;CHAR 
+AND R5, R5, 0		;TEMP
+AND R6, R6, 0		;COUNTER
+
+LEA R1, ARRAY		;R1 = ARRAY ADDRESS
+
+ENCRYPTLOOP
+	;check if r6 = numofchars
+	LD R4, NUMOFCHARS
+	NOT R4, R4
+	ADD R4, R4, 1
+	ADD R4, R4, R6
+	BRz DONE
+
+;boundchecking
+LD R2, BIGA		;R2 = -A
+LD R3, BIGZ		;R3 = -Z
+AND R4, R4, 0
+AND R5, R5, 0
+LDR R4, R1, 0		;R4 = CHAR
+ADD R5, R4, R2		;char - 65
+BRn SKIP		;if char-65 is neg then its not an alphabet
+ADD R5, R4, R3		;char - 90
+BRnz BIGENCRYPT		;char is <= 90 but >= 65 so encrypt
+LD R2, SMALLA		;R2 = -a(-97)
+LD R3, SMALLZ		;R3 = -z(-122)
+ADD R5, R4, R2 		;char - 97
+BRn SKIP		;char is > 90 but < 97 so not an alphabet
+ADD R5, R4, R3		;char - 122
+BRnz SMALLENCRYPT	;char >= 97 but <= 122 so encrypt
+BRp SKIP		;char > 122 so skip
+
+BIGENCRYPT
+LD R2, BIGZ
+LD R3, CNUMBER
+ADD R5, R4, R3		;R5 = CIPHER + CHAR
+ADD R7, R5, R2		;R7 = R5 - 90
+BRp OVERLOAD
+BRnz CONTINUE
+	OVERLOAD 
+	LD R2, TWSIX	;R2 = -26
+	ADD R5, R5, R2	;R5 = R5 - 26
+	BRnzp GOTOSTORE
+CONTINUE
+ADD R5, R5, 0
+BRnzp GOTOSTORE
+
+GOTOSTORE
+AND R4, R4, 0	
+ADD R4, R4, 1	
+ST R4, RI		;set row = 1
+ST R6, CI
+ST R5, CHAR
+ADD R6, R6, 1
+JSR STORE
+ADD R1, R1, 1
+BRnzp ENCRYPTLOOP
+
+SMALLENCRYPT
+LD R2, SMALLZ		;R2 = -122
+LD R3, CNUMBER		;R3 = CIPHER
+ADD R5, R4, R3		;R5 = CHAR + CIPHER
+ADD R7, R5, R2		;R7 = R5 - 122
+BRp OVERLOAD1		
+BRnz CONTINUE1
+	OVERLOAD1	
+	LD R2, TWSIX
+	ADD R5, R5, R2
+	BRnzp GOTOSTORE
+CONTINUE1
+ADD R5, R5, 0
+BRnzp GOTOSTORE
+
+;adds the non-alphabet character into new array
+;and increment counter
+SKIP 
+ST R6, CI			
+ADD R6, R6, 1
+AND R5, R5, 0
+ADD R5, R5, 1
+ST R5, RI
+LDR R4, R1, 0
+ST R4, CHAR
+JSR STORE
+ADD R1, R1, 1
+BRnzp ENCRYPTLOOP
+
+DONE
+LD R7, SAVE
+RET
+
+NUMOFCHARS .BLKW 1
+RETCHAR .BLKW 1
+
+;decrements alphabets by the cipher amount
+DECRYPT
+ST R7, SAVE		;SAVE = RETURN ADDRESS OF ENCRYPT
+AND R1, R1, 0		;ARRAY ADDRESS
+AND R2, R2, 0		;ALPA END HOLDERS
+AND R3, R3, 0		;ALPHA END HOLDER
+AND R4, R4, 0		;CHAR 
+AND R5, R5, 0		;TEMP
+AND R6, R6, 0		;COUNTER
+
+LEA R1, ARRAY		;R1 = ARRAY ADDRESS
+
+DECRYPTLOOP
+	;check if r6 = numofchars
+	LD R4, NUMOFCHARS
+	NOT R4, R4
+	ADD R4, R4, 1
+	ADD R4, R4, R6
+	BRz DONE1
+;boundchecking
+LD R2, BIGA		;R2 = -A
+LD R3, BIGZ		;R3 = -Z
+AND R4, R4, 0
+AND R5, R5, 0
+LDR R4, R1, 0		;R4 = CHAR
+ADD R5, R4, R2		;char - 65
+BRn SKIP1		;if char-65 is neg then its not an alphabet
+ADD R5, R4, R3		;char - 90
+BRnz BIGDECRYPT		;char is <= 90 but >= 65 so encrypt
+LD R2, SMALLA		;R2 = -a(-97)
+LD R3, SMALLZ		;R3 = -z(-122)
+ADD R5, R4, R2 		;char - 97
+BRn SKIP1		;char is > 90 but < 97 so not an alphabet
+ADD R5, R4, R3		;char - 122
+BRnz SMALLDECRYPT	;char >= 97 but <= 122 so encrypt
+BRp SKIP1		;char > 122 so skip
+
+BIGDECRYPT
+LD R2, BIGA
+LD R3, CNUMBER
+NOT R3, R3
+ADD R3, R3, 1
+ADD R5, R4, R3		;R5 = CHAR - CIPHER
+ADD R7, R5, R2		;R7 = R5 - 65
+BRn OVERLOAD2
+BRzp CONTINUE2
+	OVERLOAD2
+	LD R2, TWSIX	;R2 = -26
+	NOT R2, R2
+	ADD R2, R2, 1
+	ADD R5, R5, R2	;R5 = R5 + 26
+	BRnzp GOTOSTORE2
+CONTINUE2
+ADD R5, R5, 0
+BRnzp GOTOSTORE2
+
+GOTOSTORE2
+AND R4, R4, 0
+ADD R4, R4, 1
+ST R4, RI
+ST R6, CI
+ST R5, CHAR
+ADD R6, R6, 1
+JSR STORE
+ADD R1, R1, 1
+BRnzp DECRYPTLOOP
+
+SMALLDECRYPT
+LD R2, SMALLA		;R2 = -97
+LD R3, CNUMBER		;R3 = CIPHER
+NOT R3, R3
+ADD R3, R3, 1
+ADD R5, R4, R3		;R5 = CHAR - CIPHER
+ADD R7, R5, R2		;R7 = R5 - 97
+BRn OVERLOAD3		
+BRzp CONTINUE3
+	OVERLOAD3	
+	LD R2, TWSIX
+	NOT R2, R2
+	ADD R2, R2, 1
+	ADD R5, R5, R2
+	BRnzp GOTOSTORE2
+CONTINUE3
+ADD R5, R5, 0
+BRnzp GOTOSTORE2
+
+SKIP1
+ST R6, CI
+ADD R6, R6, 1
+AND R5, R5, 0
+ADD R5, R5, 1
+ST R5, RI
+LDR R4, R1, 0
+ST R4, CHAR
+JSR STORE
+ADD R1, R1, 1
+BRnzp DECRYPTLOOP
+
+BRz DONE1
+BRnzp DECRYPTLOOP
+
+DONE1
+LD R7, SAVE
+RET
+
+;prints out the array according to the eflag
+PRINT
+ST R7, SAVE
+AND R6, R6, 0		;special counter variable
+
+LEA R0, EFLAG		;load the encryption flag
+LDR R0, R0, 0
+
+ST R0, RI		;if eflag = 1, print Row 1 first. Else print Row 0
+LEA R0, ENCRYPTMESSAGE
+PUTS
+PRINTR1			
+	LD R5, NUMOFCHARS
+	NOT R5, R5
+	ADD R5, R5, 1
+	ADD R5, R5, R6
+	BRz PRINTR0	
+	ST R6, CI
+	JSR LOAD
+	LD R0, RETCHAR
+	OUT
+	ADD R6, R6, 1
+	BRnzp PRINTR1
+	PRINTR0
+		LEA R0, DECRYPTMESSAGE
+		PUTS
+		LEA R0, EFLAG
+		LDR R0, R0, 0
+		BRz ADD1		;if eflag was 0 earlier, then add 1 and print Row 1
+		BRnzp MINUS1		;if eflag was 1 earlier, minus 1 and print out Row 0
+		ADD1
+			ADD R0, R0, 1
+			BRnzp DOODLY
+		MINUS1
+			ADD R0, R0, -1
+		DOODLY
+		ST R0, RI
+		AND R6, R6, 0
+		SOMELOOP
+		LD R5, NUMOFCHARS
+		NOT R5, R5
+		ADD R5, R5, 1
+		ADD R5, R5, R6
+		BRz PRINTDONE
+		ST R6, CI
+		JSR LOAD
+		LD R0, RETCHAR
+		OUT
+		ADD R6, R6, 1
+		BRnzp SOMELOOP
+		
+PRINTDONE
+LD R7, SAVE
+RET
+
+ENCRYPTMESSAGE .STRINGZ "<ENCRYPT> "
+DECRYPTMESSAGE .STRINGZ "\n<DECRYPT> "
+ARRAY .BLKW 400
+.END
